@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { answerSyllabusQuestion } from '../utils/aiClient.js';
 
 const SUGGESTED_QUESTIONS = [
   'When is my next exam?',
@@ -106,25 +107,15 @@ export default function ChatInterface({ syllabusData, rawText }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: text,
-          syllabusData,
-          rawText,
-          chatHistory: messages.filter(m => !m.loading).slice(-6),
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) throw new Error(result.error || 'Request failed');
+      const answer = await answerSyllabusQuestion(
+        text, syllabusData, rawText,
+        messages.filter(m => !m.loading).slice(-6)
+      );
 
       setMessages(prev =>
         prev.map(m =>
           m.id === thinkingMsg.id
-            ? { ...m, content: result.answer, loading: false }
+            ? { ...m, content: answer, loading: false }
             : m
         )
       );
