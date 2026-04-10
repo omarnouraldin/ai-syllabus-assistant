@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import ApiKeySetup from './components/ApiKeySetup.jsx';
 import CoursesHome from './components/CoursesHome.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import Dashboard from './components/Dashboard.jsx';
@@ -39,7 +38,6 @@ function checkDeadlines(courses, daysAhead = 2) {
 }
 
 export default function App() {
-  const [hasApiKey, setHasApiKey]       = useState(!!localStorage.getItem('anthropic_api_key'));
   const [courses, setCourses]           = useState([]);
   const [activeCourseId, setActiveCourseId] = useState(null);
   const [view, setView]                 = useState('home');
@@ -94,18 +92,6 @@ export default function App() {
     }
   };
 
-  const handleChangeApiKey = () => {
-    if (confirm('Change your API key?')) {
-      localStorage.removeItem('anthropic_api_key');
-      setHasApiKey(false);
-    }
-  };
-
-  // Show API key setup if no key
-  if (!hasApiKey) {
-    return <ApiKeySetup onKeySet={() => setHasApiKey(true)} />;
-  }
-
   const navTabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
     { id: 'chat',      label: '💬 Ask AI' },
@@ -154,10 +140,6 @@ export default function App() {
               title={darkMode ? 'Light mode' : 'Dark mode'}
               style={{ fontSize:'1rem', padding:'6px 10px' }}>
               {darkMode ? '☀️' : '🌙'}
-            </button>
-            <button onClick={handleChangeApiKey}
-              className="btn btn-secondary btn-sm hide-mobile" title="Change API key">
-              🔑
             </button>
             <div className={`navbar-status ${activeCourse?'ready':''}`}>
               {activeCourse && view!=='home'

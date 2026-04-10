@@ -3,12 +3,14 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  // Base path must match your GitHub repo name
-  base: '/ai-syllabus-assistant/',
+  server: {
+    port: 5173,
+    // Proxy /api calls to local backend during development
+    proxy: {
+      '/api': 'http://localhost:3001',
+    },
+  },
   build: {
     outDir: 'dist',
-  },
-  optimizeDeps: {
-    include: ['pdfjs-dist'],
   },
 });
