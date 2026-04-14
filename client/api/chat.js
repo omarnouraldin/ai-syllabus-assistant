@@ -1,8 +1,8 @@
-const Anthropic = require('@anthropic-ai/sdk');
+import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -50,4 +50,4 @@ Answer student questions clearly and concisely.
     console.error('Chat error:', error);
     res.status(500).json({ error: error.message || 'Failed to get answer' });
   }
-};
+}

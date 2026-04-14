@@ -1,8 +1,8 @@
-const Anthropic = require('@anthropic-ai/sdk');
+import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -72,4 +72,4 @@ Return only the JSON object, nothing else.`
     }
     res.status(500).json({ error: error.message || 'Failed to analyze syllabus' });
   }
-};
+}
