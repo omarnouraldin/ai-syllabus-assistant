@@ -39,7 +39,7 @@ function Message({ msg }) {
         maxWidth: '75%',
         padding: '10px 14px',
         borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-        background: isUser ? 'var(--primary)' : 'white',
+        background: isUser ? 'var(--primary)' : 'var(--surface)',
         color: isUser ? 'white' : 'var(--text)',
         fontSize: '0.9rem',
         lineHeight: 1.6,
@@ -189,7 +189,7 @@ export default function ChatInterface({ syllabusData, rawText }) {
                       padding: '4px 10px',
                       border: '1px solid var(--border)',
                       borderRadius: 20,
-                      background: 'white',
+                      background: 'var(--surface)',
                       cursor: 'pointer',
                       fontSize: '0.75rem',
                       color: 'var(--primary)',
@@ -210,7 +210,7 @@ export default function ChatInterface({ syllabusData, rawText }) {
             borderTop: '1px solid var(--border)',
             display: 'flex',
             gap: 10,
-            background: 'white',
+            background: 'var(--surface)',
           }}>
             <textarea
               value={input}

@@ -47,7 +47,7 @@ function CourseCard({ course, onOpen, onDelete, onEditSchedule, onColorChange })
     <div
       onClick={() => onOpen(course.id)}
       style={{
-        background: 'white',
+        background: 'var(--surface)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius)',
         overflow: 'hidden',
@@ -109,7 +109,7 @@ function CourseCard({ course, onOpen, onDelete, onEditSchedule, onColorChange })
                 />
                 <div style={{
                   position: 'absolute', right: 0, top: '100%', zIndex: 10,
-                  background: 'white', border: '1px solid var(--border)',
+                  background: 'var(--surface)', border: '1px solid var(--border)',
                   borderRadius: 10, boxShadow: 'var(--shadow-md)',
                   minWidth: 160, overflow: 'hidden',
                 }}>
@@ -180,8 +180,8 @@ function CourseCard({ course, onOpen, onDelete, onEditSchedule, onColorChange })
             {days !== null && (
               <div style={{
                 padding: '4px 10px', borderRadius: 20, fontSize: '0.75rem', fontWeight: 700,
-                background: days <= 3 ? '#fee2e2' : days <= 7 ? '#fef3c7' : `${course.color}15`,
-                color: days <= 3 ? 'var(--danger)' : days <= 7 ? '#92400e' : course.color,
+                background: days <= 3 ? 'var(--danger-bg)' : days <= 7 ? 'var(--warning-bg)' : `${course.color}20`,
+                color: days <= 3 ? 'var(--danger)' : days <= 7 ? 'var(--warning)' : course.color,
               }}>
                 {days === 0 ? 'Today' : days === 1 ? 'Tomorrow' : `${days}d`}
               </div>
@@ -229,7 +229,7 @@ export default function CoursesHome({ courses, onOpenCourse, onAddCourse, onDele
                 <button key={t.id} onClick={() => setTab(t.id)} style={{
                   padding: '6px 14px', border: 'none', borderRadius: 6, cursor: 'pointer',
                   fontWeight: 600, fontSize: '0.8rem', transition: 'all 0.15s',
-                  background: tab === t.id ? 'white' : 'transparent',
+                  background: tab === t.id ? 'var(--surface)' : 'transparent',
                   color: tab === t.id ? 'var(--primary)' : 'var(--text-muted)',
                   boxShadow: tab === t.id ? 'var(--shadow)' : 'none',
                 }}>

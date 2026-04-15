@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from './lib/supabase.js';
+import AuthPage from './components/AuthPage.jsx';
 import CoursesHome from './components/CoursesHome.jsx';
 import UploadPage from './components/UploadPage.jsx';
 import Dashboard from './components/Dashboard.jsx';
@@ -6,8 +8,7 @@ import ChatInterface from './components/ChatInterface.jsx';
 import GradeCalculator from './components/GradeCalculator.jsx';
 import { exportToCalendar } from './utils/calendarExport.js';
 
-const STORAGE_KEY = 'asa_courses_v2';
-const THEME_KEY   = 'asa_theme';
+const THEME_KEY = 'asa_theme';
 
 const COURSE_COLORS = [
   '#6366f1','#ec4899','#10b981','#f59e0b',
@@ -38,29 +39,76 @@ function checkDeadlines(courses, daysAhead = 2) {
 }
 
 export default function App() {
+  const [session, setSession]           = useState(undefined); // undefined = loading
   const [courses, setCourses]           = useState([]);
   const [activeCourseId, setActiveCourseId] = useState(null);
   const [view, setView]                 = useState('home');
   const [darkMode, setDarkMode]         = useState(() => localStorage.getItem(THEME_KEY) === 'dark');
+  const [saving, setSaving]             = useState(false);
 
+  // ── Theme ────────────────────────────────────────────────────────────────────
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
     localStorage.setItem(THEME_KEY, darkMode ? 'dark' : 'light');
   }, [darkMode]);
 
+  // ── Auth listener ────────────────────────────────────────────────────────────
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) { const p = JSON.parse(saved); setCourses(p); checkDeadlines(p); }
-    } catch(e) { console.warn(e); }
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
+  // ── Load courses from Supabase when logged in ─────────────────────────────────
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
-  }, [courses]);
+    if (!session) { setCourses([]); return; }
+    loadCourses();
+  }, [session]);
 
-  const activeCourse = courses.find(c => c.id === activeCourseId) || null;
+  const loadCourses = async () => {
+    const { data, error } = await supabase
+      .from('courses')
+      .select('*')
+      .order('added_at', { ascending: true });
+    if (error) { console.error('Load error:', error); return; }
+    const mapped = (data || []).map(row => ({
+      id: row.id,
+      color: row.color,
+      addedAt: row.added_at,
+      data: row.data,
+      rawText: row.raw_text,
+      schedule: row.schedule || { days:[], start_time:null, end_time:null, location:null },
+    }));
+    setCourses(mapped);
+    checkDeadlines(mapped);
+  };
 
+  // ── Persist a single course to Supabase ───────────────────────────────────────
+  const upsertCourse = useCallback(async (course) => {
+    if (!session) return;
+    setSaving(true);
+    const { error } = await supabase.from('courses').upsert({
+      id: course.id,
+      user_id: session.user.id,
+      color: course.color,
+      added_at: course.addedAt,
+      data: course.data,
+      raw_text: course.rawText,
+      schedule: course.schedule,
+    });
+    if (error) console.error('Save error:', error);
+    setSaving(false);
+  }, [session]);
+
+  const deleteCourseDb = useCallback(async (id) => {
+    if (!session) return;
+    const { error } = await supabase.from('courses').delete().eq('id', id);
+    if (error) console.error('Delete error:', error);
+  }, [session]);
+
+  // ── Course actions ────────────────────────────────────────────────────────────
   const handleSyllabusLoaded = (data, rawText) => {
     const newCourse = {
       id: generateId(),
@@ -70,15 +118,43 @@ export default function App() {
       schedule: data.class_schedule || { days:[], start_time:null, end_time:null, location:null },
     };
     setCourses(prev => [...prev, newCourse]);
+    upsertCourse(newCourse);
     setActiveCourseId(newCourse.id);
     setView('dashboard');
   };
 
-  const handleUpdateData     = (id, data)     => setCourses(p => p.map(c => c.id===id ? {...c,data} : c));
-  const handleUpdateSchedule = (id, schedule) => setCourses(p => p.map(c => c.id===id ? {...c,schedule} : c));
-  const handleUpdateColor    = (id, color)    => setCourses(p => p.map(c => c.id===id ? {...c,color} : c));
-  const handleDeleteCourse   = (id) => { setCourses(p => p.filter(c => c.id!==id)); setView('home'); setActiveCourseId(null); };
-  const handleOpenCourse     = (id) => { setActiveCourseId(id); setView('dashboard'); };
+  const handleUpdateData = (id, data) => {
+    setCourses(p => {
+      const next = p.map(c => c.id===id ? {...c,data} : c);
+      upsertCourse(next.find(c=>c.id===id));
+      return next;
+    });
+  };
+
+  const handleUpdateSchedule = (id, schedule) => {
+    setCourses(p => {
+      const next = p.map(c => c.id===id ? {...c,schedule} : c);
+      upsertCourse(next.find(c=>c.id===id));
+      return next;
+    });
+  };
+
+  const handleUpdateColor = (id, color) => {
+    setCourses(p => {
+      const next = p.map(c => c.id===id ? {...c,color} : c);
+      upsertCourse(next.find(c=>c.id===id));
+      return next;
+    });
+  };
+
+  const handleDeleteCourse = (id) => {
+    setCourses(p => p.filter(c => c.id!==id));
+    deleteCourseDb(id);
+    setView('home');
+    setActiveCourseId(null);
+  };
+
+  const handleOpenCourse = (id) => { setActiveCourseId(id); setView('dashboard'); };
 
   const handleToggleNotifications = async () => {
     if (Notification.permission === 'granted') {
@@ -92,11 +168,36 @@ export default function App() {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setCourses([]);
+    setView('home');
+    setActiveCourseId(null);
+  };
+
   const navTabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
     { id: 'chat',      label: '💬 Ask AI' },
     { id: 'grades',    label: '🎯 Grades' },
   ];
+
+  // ── Loading state (checking auth) ─────────────────────────────────────────────
+  if (session === undefined) {
+    return (
+      <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
+        <div style={{ textAlign:'center' }}>
+          <div style={{ fontSize:48, marginBottom:16 }}>📋</div>
+          <div className="text-muted">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Not logged in ─────────────────────────────────────────────────────────────
+  if (!session) return <AuthPage />;
+
+  // ── App ───────────────────────────────────────────────────────────────────────
+  const activeCourse = courses.find(c => c.id === activeCourseId) || null;
 
   return (
     <div className="app">
@@ -123,6 +224,11 @@ export default function App() {
           )}
 
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            {saving && (
+              <span className="text-xs text-muted hide-mobile" style={{ display:'flex', alignItems:'center', gap:4 }}>
+                <span className="spinner spinner-dark" style={{ width:12, height:12 }} /> Saving…
+              </span>
+            )}
             {view==='home' && courses.length>0 && (
               <button onClick={() => exportToCalendar(courses)}
                 className="btn btn-secondary btn-sm hide-mobile" title="Export to calendar">
@@ -141,14 +247,16 @@ export default function App() {
               style={{ fontSize:'1rem', padding:'6px 10px' }}>
               {darkMode ? '☀️' : '🌙'}
             </button>
-            <div className={`navbar-status ${activeCourse?'ready':''}`}>
-              {activeCourse && view!=='home'
-                ? <span style={{display:'flex',alignItems:'center',gap:5}}>
-                    <span style={{width:9,height:9,borderRadius:'50%',background:activeCourse.color,display:'inline-block'}}/>
-                    {activeCourse.data.course_code||activeCourse.data.course_name?.split(' ').slice(0,2).join(' ')}
-                  </span>
-                : `${courses.length} course${courses.length!==1?'s':''}`
-              }
+
+            {/* User menu */}
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginLeft:4 }}>
+              <span className="text-xs text-muted hide-mobile"
+                style={{ maxWidth:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                {session.user.email}
+              </span>
+              <button onClick={handleLogout} className="btn btn-secondary btn-sm" title="Sign out">
+                ↪ Logout
+              </button>
             </div>
           </div>
         </div>

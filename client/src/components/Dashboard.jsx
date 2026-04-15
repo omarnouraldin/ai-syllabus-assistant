@@ -93,7 +93,7 @@ function UpcomingItems({ assignments = [], exams = [] }) {
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 12px', borderRadius: 'var(--radius-sm)',
-                background: days !== null && days <= 3 ? '#fef2f2' : 'var(--surface-2)',
+                background: days !== null && days <= 3 ? 'var(--danger-bg)' : 'var(--surface-2)',
                 borderLeft: `3px solid ${item.kind === 'exam' ? 'var(--danger)' : 'var(--primary)'}`,
               }}>
                 <span style={{ fontSize: 18 }}>{item.kind === 'exam' ? '🎓' : '📝'}</span>
