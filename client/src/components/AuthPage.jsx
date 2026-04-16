@@ -66,7 +66,7 @@ export default function AuthPage() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
+          <img src="/logo.png" alt="Logo" style={{ width: 90, height: 90, borderRadius: 20, objectFit: 'cover', marginBottom: 12 }} />
           <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>
             AI Syllabus Assistant
           </h1>

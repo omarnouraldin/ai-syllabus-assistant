@@ -205,7 +205,7 @@ export default function App() {
       <nav className="navbar">
         <div className="navbar-inner">
           <div className="navbar-brand" onClick={() => setView('home')}>
-            <span>📋</span>
+            <img src="/logo.png" alt="Logo" style={{ width: 32, height: 32, borderRadius: 8, objectFit: 'cover' }} />
             <span>AI Syllabus Assistant</span>
           </div>
 
