@@ -112,10 +112,35 @@
 
   .card { padding: 16px; }
 
-  /* Stack dashboard grid to single column on mobile */
-  .dashboard-grid {
+  /* Stack dashboard and grade calculator grids to single column */
+  .dashboard-grid,
+  .grade-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Navbar: keep it tight on mobile */
+  .navbar-inner {
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .navbar-brand span:last-child {
+    font-size: 0.95rem;
+  }
+
+  /* Auth page padding */
+  .auth-card {
+    padding: 20px !important;
+  }
+
+  /* Chat messages narrower max-width */
+  .chat-bubble {
+    max-width: 90% !important;
+  }
+
+  /* Prevent any horizontal scroll */
+  body { overflow-x: hidden; }
+  .app { overflow-x: hidden; }
 }
 
 /* ── Reset ──────────────────────────────────────────────────────────────── */

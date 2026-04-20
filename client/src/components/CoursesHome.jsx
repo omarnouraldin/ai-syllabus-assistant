@@ -263,8 +263,8 @@ export default function CoursesHome({ courses, onOpenCourse, onAddCourse, onDele
       {courses.length > 0 && tab === 'cards' && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-          gap: 18,
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
+          gap: 16,
         }}>
           {courses.map(course => (
             <CourseCard

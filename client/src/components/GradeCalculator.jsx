@@ -104,7 +104,7 @@ export default function GradeCalculator({ data }) {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+        <div className="grade-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
 
           {/* Score Input */}
           <div className="card" style={{ gridColumn: '1 / -1' }}>

@@ -223,7 +223,7 @@ export default function App() {
             </div>
           )}
 
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:6 }}>
             {saving && (
               <span className="text-xs text-muted hide-mobile" style={{ display:'flex', alignItems:'center', gap:4 }}>
                 <span className="spinner spinner-dark" style={{ width:12, height:12 }} /> Saving…
@@ -232,7 +232,7 @@ export default function App() {
             {view==='home' && courses.length>0 && (
               <button onClick={() => exportToCalendar(courses)}
                 className="btn btn-secondary btn-sm hide-mobile" title="Export to calendar">
-                📅 Export
+                📅
               </button>
             )}
             {courses.length>0 && (
@@ -247,17 +247,9 @@ export default function App() {
               style={{ fontSize:'1rem', padding:'6px 10px' }}>
               {darkMode ? '☀️' : '🌙'}
             </button>
-
-            {/* User menu */}
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginLeft:4 }}>
-              <span className="text-xs text-muted hide-mobile"
-                style={{ maxWidth:140, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
-                {session.user.email}
-              </span>
-              <button onClick={handleLogout} className="btn btn-secondary btn-sm" title="Sign out">
-                ↪ Logout
-              </button>
-            </div>
+            <button onClick={handleLogout} className="btn btn-secondary btn-sm" title="Sign out">
+              ↪ <span className="hide-mobile">Logout</span>
+            </button>
           </div>
         </div>
       </nav>

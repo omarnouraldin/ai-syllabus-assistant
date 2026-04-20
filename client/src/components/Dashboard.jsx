@@ -418,8 +418,8 @@ export default function Dashboard({ data, color = 'var(--primary)', schedule, on
       {/* ── Grid ─────────────────────────────────────────────────────── */}
       <div className="dashboard-grid" style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-        gap: 20,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+        gap: 16,
       }}>
         <UpcomingItems assignments={data.assignments || []} exams={data.exams || []} />
 
