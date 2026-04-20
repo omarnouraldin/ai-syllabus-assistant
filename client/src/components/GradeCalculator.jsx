@@ -140,7 +140,7 @@ export default function GradeCalculator({ data }) {
                         value={score}
                         onChange={(e) => handleScore(item.item, e.target.value)}
                         placeholder="Not taken yet"
-                        style={{ maxWidth: 160 }}
+                        style={{ maxWidth: 160, minWidth: 0 }}
                       />
                       <span className="text-sm text-muted">/ 100</span>
                       {hasScore && (

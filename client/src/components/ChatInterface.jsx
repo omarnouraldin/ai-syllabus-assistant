@@ -36,7 +36,7 @@ function Message({ msg }) {
         </div>
       )}
       <div style={{
-        maxWidth: '75%',
+        maxWidth: 'min(75%, calc(100vw - 80px))',
         padding: '10px 14px',
         borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
         background: isUser ? 'var(--primary)' : 'var(--surface)',

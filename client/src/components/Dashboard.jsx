@@ -395,9 +395,9 @@ export default function Dashboard({ data, color = 'var(--primary)', schedule, on
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: 'flex', gap: 8, flexShrink: 0, flexWrap: 'wrap' }}>
-            <button className="btn btn-primary btn-sm" onClick={onChat} style={{ background: color }}>💬 Ask AI</button>
-            <button className="btn btn-secondary btn-sm" onClick={onGrades}>🎯 Grades</button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', width: '100%' }}>
+            <button className="btn btn-primary btn-sm" onClick={onChat} style={{ background: color, flex: 1 }}>💬 Ask AI</button>
+            <button className="btn btn-secondary btn-sm" onClick={onGrades} style={{ flex: 1 }}>🎯 Grades</button>
             <button className="btn btn-secondary btn-sm hide-mobile" onClick={() => setShowEditInfo(true)}>✏️ Edit Info</button>
             <button className="btn btn-danger btn-sm" onClick={() => { if(confirm('Delete this course?')) onDelete(); }}>🗑</button>
           </div>
